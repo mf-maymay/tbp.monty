@@ -9,7 +9,7 @@
 # https://opensource.org/licenses/MIT.
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict
 
 import numpy as np
 import quaternion as qt
@@ -27,6 +27,8 @@ __all__ = [
     "GaussianSmoothing",
     "MissingToMaxDepth",
 ]
+
+Observation = Dict[AgentID, Dict[str, Dict[str, np.ndarray]]]
 
 
 class MissingToMaxDepth:
@@ -51,7 +53,9 @@ class MissingToMaxDepth:
         self.threshold = threshold
         self.needs_rng = False
 
-    def __call__(self, observation, _state=None):
+    def __call__(
+        self, observation: Observation, _state: State | None = None
+    ) -> Observation:
         """Replace missing depth values with max_depth.
 
         Args:
@@ -62,7 +66,7 @@ class MissingToMaxDepth:
             observation, same as input, with missing data modified in place
         """
         # loop over sensor modules
-        for sm in observation[self.agent_id].keys():
+        for sm in observation[self.agent_id]:
             m = np.where(observation[self.agent_id][sm]["depth"] <= self.threshold)
             observation[self.agent_id][sm]["depth"][m] = self.max_depth
         return observation
@@ -83,7 +87,9 @@ class AddNoiseToRawDepthImage:
         self.sigma = sigma
         self.needs_rng = True
 
-    def __call__(self, observation, _state=None):
+    def __call__(
+        self, observation: Observation, _state: State | None = None
+    ) -> Observation:
         """Add gaussian noise to raw sensory input.
 
         Args:
@@ -97,8 +103,8 @@ class AddNoiseToRawDepthImage:
             NoDepthSensorPresent: if no depth sensor is present.
         """
         # loop over sensor modules
-        for sm in observation[self.agent_id].keys():
-            if "depth" in observation[self.agent_id][sm].keys():
+        for sm in observation[self.agent_id]:
+            if "depth" in observation[self.agent_id][sm]:
                 noise = self.rng.normal(
                     0,
                     self.sigma,
@@ -136,7 +142,9 @@ class GaussianSmoothing:
         self.kernel = self.create_kernel()
         self.needs_rng = False
 
-    def __call__(self, observation, _state=None):
+    def __call__(
+        self, observation: Observation, _state: State | None = None
+    ) -> Observation:
         """Apply gaussian smoothing to depth images.
 
         Args:
@@ -150,8 +158,8 @@ class GaussianSmoothing:
             NoDepthSensorPresent: if no depth sensor is present.
         """
         # loop over sensor modules
-        for sm in observation[self.agent_id].keys():
-            if "depth" in observation[self.agent_id][sm].keys():
+        for sm in observation[self.agent_id]:
+            if "depth" in observation[self.agent_id][sm]:
                 depth_img = observation[self.agent_id][sm]["depth"].copy()
                 padded_img = self.get_padded_img(depth_img, pad_type="edge")
                 filtered_img = scipy.signal.convolve(
@@ -320,7 +328,9 @@ class DepthTo3DLocations:
             depth_clip_sensors if depth_clip_sensors is not None else []
         )
 
-    def __call__(self, observations: dict, state: State | None = None) -> dict:
+    def __call__(
+        self, observations: Observation, state: State | None = None
+    ) -> Observation:
         """Apply the depth-to-3D-locations transform to sensor observations.
 
         Applies spatial transforms to the observations and generates a mask used
@@ -398,7 +408,7 @@ class DepthTo3DLocations:
             # We need a semantic map that masks off-object pixels. We can use the
             # ground-truth semantic map if it's available. Otherwise, we generate one
             # from the depth map and (temporarily) add it to the observation dict.
-            if "semantic" in agent_obs.keys():
+            if "semantic" in agent_obs:
                 semantic_patch = agent_obs["semantic"]
             else:
                 # The generated map uses depth observations to determine whether
