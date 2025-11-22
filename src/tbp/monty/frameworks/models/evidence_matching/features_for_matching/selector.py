@@ -29,11 +29,8 @@ class DefaultFeaturesForMatchingSelector:
         tolerances: dict,
     ) -> dict[str, bool]:
         use_features = {}
-        for input_channel in tolerances.keys():
-            if (
-                input_channel not in feature_weights.keys()
-                or feature_evidence_increment <= 0
-            ):
+        for input_channel in tolerances:
+            if input_channel not in feature_weights or feature_evidence_increment <= 0:
                 use_features[input_channel] = False
             else:
                 non_morphological_features = {

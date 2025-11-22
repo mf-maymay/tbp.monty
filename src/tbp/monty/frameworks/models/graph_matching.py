@@ -300,7 +300,7 @@ class MontyForGraphMatching(MontyBase):
                 for j in self.lm_to_lm_vote_matrix[i]:
                     lm_object_id_vote = votes_per_lm[j]["object_id_vote"]
                     for obj in lm_object_id_vote.keys():
-                        if obj in pos_object_id_votes.keys():
+                        if obj in pos_object_id_votes:
                             pos_object_id_votes[obj] += int(lm_object_id_vote[obj])
                             neg_object_id_votes[obj] += int(not lm_object_id_vote[obj])
                         else:
@@ -357,7 +357,7 @@ class MontyForGraphMatching(MontyBase):
                                 lm_rot_vote_transformed.append(search_rot)
 
                         if len(lm_loc_vote_transformed) > 0:
-                            if obj in lm_object_location_votes.keys():
+                            if obj in lm_object_location_votes:
                                 lm_object_location_votes[obj] = np.vstack(
                                     [
                                         lm_object_location_votes[obj],

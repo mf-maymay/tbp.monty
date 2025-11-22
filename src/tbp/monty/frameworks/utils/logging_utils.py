@@ -93,7 +93,7 @@ def load_models_from_dir(exp_path, pretrained_dict=None):
             state_dict = torch.load(os.path.join(exp_path, folder, "model.pt"))
             for lm_id in list(state_dict["lm_dict"].keys()):
                 epoch_models = state_dict["lm_dict"][lm_id]["graph_memory"]
-                if folder not in lm_models.keys():
+                if folder not in lm_models:
                     lm_models[folder] = {}
                 lm_models[folder]["LM_" + str(lm_id)] = epoch_models
     return lm_models

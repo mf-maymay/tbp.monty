@@ -111,7 +111,7 @@ class MontyForEvidenceGraphMatching(MontyForGraphMatching):
                                     rotation=sensor_rotation_disp,
                                 )
                                 transformed_lm_states_for_object.append(new_s)
-                            if obj in lm_state_votes.keys():
+                            if obj in lm_state_votes:
                                 lm_state_votes[obj].extend(
                                     transformed_lm_states_for_object
                                 )
