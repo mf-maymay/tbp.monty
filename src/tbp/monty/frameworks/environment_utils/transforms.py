@@ -51,7 +51,6 @@ class MissingToMaxDepth:
         self.agent_id = agent_id
         self.max_depth = max_depth
         self.threshold = threshold
-        self.needs_rng = False
 
     def __call__(
         self, observation: Observation, _state: State | None = None
@@ -75,17 +74,18 @@ class MissingToMaxDepth:
 class AddNoiseToRawDepthImage:
     """Add gaussian noise to raw sensory input."""
 
-    def __init__(self, agent_id: AgentID, sigma):
+    def __init__(self, agent_id: AgentID, sigma, rng):
         """Initialize the transform.
 
         Args:
             agent_id: agent id of the agent where the transform should be applied.
                 Transform will be applied to all depth sensors of the agent.
             sigma: standard deviation of noise distribution.
+            rng: Random number generator to use.
         """
         self.agent_id = agent_id
         self.sigma = sigma
-        self.needs_rng = True
+        self.rng = rng
 
     def __call__(
         self, observation: Observation, _state: State | None = None
@@ -140,7 +140,6 @@ class GaussianSmoothing:
         self.kernel_width = kernel_width
         self.pad_size = kernel_width // 2
         self.kernel = self.create_kernel()
-        self.needs_rng = False
 
     def __call__(
         self, observation: Observation, _state: State | None = None
@@ -282,8 +281,6 @@ class DepthTo3DLocations:
         get_all_points=False,
         use_semantic_sensor=False,
     ):
-        self.needs_rng = False
-
         self.inv_k = []
         self.h, self.w = [], []
 

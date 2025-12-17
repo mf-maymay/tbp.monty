@@ -12,6 +12,7 @@ transform:
   - _target_: tbp.monty.frameworks.environment_utils.transforms.AddNoiseToRawDepthImage
     agent_id: ${monty.agent_id:agent_id_0} # env_init_args[agents][0].agent_args.agent_id
     sigma: 0.001
+    rng: null
   # Uncomment lines below to enable smoothing of sensor patch depth
   # - _target_: tbp.monty.frameworks.environment_utils.transforms.GaussianSmoothing
   #   agent_id: ${monty.agent_id:agent_id_0} # env_init_args[agents][0].agent_args.agent_id
